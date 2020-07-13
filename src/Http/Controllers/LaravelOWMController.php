@@ -1,10 +1,10 @@
 <?php
-namespace Gmopx\LaravelOWM\Http\Controllers;
+namespace Frozenshadow\LaravelOWM\Http\Controllers;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Gmopx\LaravelOWM\LaravelOWM;
+use Frozenshadow\LaravelOWM\LaravelOWM;
 
 class LaravelOWMController extends Controller
 {

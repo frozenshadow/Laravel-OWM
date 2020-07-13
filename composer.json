@@ -1,6 +1,6 @@
 {
-    "name": "gmopx/laravel-owm",
-    "description": "Wrapper for cmfcmf/openweathermap-php-api",
+    "name": "frozenshadow/laravel-owm",
+    "description": "Wrapper for cmfcmf/openweathermap-php-api. This package fork from gmopx/laravel-owm as it's abandoned.",
     "keywords": ["weather","clima","open weather map","laravel"],
     "require": {
         "php": ">=5.4.0",
@@ -11,22 +11,24 @@
 
     "authors": [
         {
-            "name": "Guillermo Palafox",
-            "email": "palafox.87@gmail.com"
+            "name": "Frozenshadow",
+            "email": "contact@leijlandia.nl",
+            "homepage": "https://github.com/frozenshadow",
+            "role": "Developer"
         }
     ],
     "minimum-stability": "dev",
 
     "autoload": {
         "psr-4": {
-            "Gmopx\\LaravelOWM\\": "src/"
+            "Frozenshadow\\LaravelOWM\\": "src/"
         }
     },
 
     "extra": {
         "laravel": {
             "providers": [
-                "Gmopx\\LaravelOWM\\LaravelOWMServiceProvider"
+                "Frozenshadow\\LaravelOWM\\LaravelOWMServiceProvider"
             ]
         }
     }

@@ -1,5 +1,5 @@
 <?php
-namespace Gmopx\LaravelOWM;
+namespace Frozenshadow\LaravelOWM;
 
 use Cmfcmf\OpenWeatherMap\AbstractCache;
 
