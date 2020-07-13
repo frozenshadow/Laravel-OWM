@@ -1,50 +1,46 @@
-# Laravel-OWM (Open Weather Map)
-## A wrapper for [OpenWeatherMap-PHP-Api](https://github.com/cmfcmf/OpenWeatherMap-PHP-Api) writen by [@cmfcmf](https://github.com/cmfcmf)
-### This package allows you to implement OpenWeatherMap-PHP-Api in laravel-way in your Laravel project.
+## Laravel-OWM (Open Weather Map)
+[![Packagist License](https://poser.pugx.org/frozenshadow/Laravel-OWM/license.png)](http://choosealicense.com/licenses/mit/)
+[![Latest Stable Version](https://poser.pugx.org/frozenshadow/Laravel-OWM/version.png)](https://packagist.org/packages/frozenshadow/Laravel-OWM)
+[![Total Downloads](https://poser.pugx.org/frozenshadow/Laravel-OWM/d/total.png)](https://packagist.org/packages/frozenshadow/Laravel-OWM)
 
-#### 1. Installation
+This package allows you to implement [OpenWeatherMap-PHP-Api](https://github.com/cmfcmf/OpenWeatherMap-PHP-Api) in your Laravel project.
 
-`composer require frozenshadow/laravel-owm`
+## Installation
 
-#### 2. Add this line to your conf/app.php file
+Require this package with composer.
 
-For Laravel == 5.0.*
-
+```shell
+composer require frozenshadow/laravel-owm
 ```
-'Frozenshadow\LaravelOWM\LaravelOWMServiceProvider'
-```
 
-For Laravel <= 5.4.*
+Laravel uses Package Auto-Discovery, so doesn't require you to manually add the ServiceProvider.
 
-```
+#### Laravel without auto-discovery:
+
+If you don't use auto-discovery, add the ServiceProvider to the providers array in config/app.php
+
+```php
 Frozenshadow\LaravelOWM\LaravelOWMServiceProvider::class,
-
 ```
 
-For Laravel >= 5.5.* will use the auto-discovery function.
+### Copy the package config to your local config with the publish command:
 
-#### 3. Publish the config file (config/laravel-owm.php)
-
-`php artisan vendor:publish --provider="Frozenshadow\LaravelOWM\LaravelOWMServiceProvider"`
-
-
-#### 4. Add your Open Weather Map API key
-
-```
-   ...
-       'api_key' => '',            // visit: http://openweathermap.org/appid#get for more info.
-       'routes_enabled' => true,   // If the routes have to be enabled.
-   ...
+```shell
+php artisan vendor:publish --provider="Frozenshadow\LaravelOWM\LaravelOWMServiceProvider"
 ```
 
-### How to use...
+Add your Open Weather Map API key.
 
-#### Current weather
-
+```php
+'api_key' => '',    // visit: http://openweathermap.org/appid#get for more info.
 ```
-...
+
+## Usage
+
+### Current weather
+
+```php
 use Frozenshadow\LaravelOWM\LaravelOWM;
-...
 
 public function foo()
 {
@@ -53,18 +49,14 @@ public function foo()
 
     dd($current_weather->temperature);
 }
-
 ```
 
 Visit [https://github.com/cmfcmf/OpenWeatherMap-PHP-Api/blob/master/Examples/CurrentWeather.php](https://github.com/cmfcmf/OpenWeatherMap-PHP-Api/blob/master/Examples/CurrentWeather.php) for more info.
 
+### Forecast
 
-#### Forecast
-
-```
-...
+```php
 use Frozenshadow\LaravelOWM\LaravelOWM;
-...
 
 public function bar()
 {
@@ -73,18 +65,14 @@ public function bar()
 
     dd($forecast);
 }
-
 ```
 
 Visit [https://github.com/cmfcmf/OpenWeatherMap-PHP-Api/blob/master/Examples/WeatherForecast.php](https://github.com/cmfcmf/OpenWeatherMap-PHP-Api/blob/master/Examples/WeatherForecast.php) for more info.
 
+### History
 
-#### History
-
-```
-...
+```php
 use Frozenshadow\LaravelOWM\LaravelOWM;
-...
 
 public function bar()
 {
@@ -98,23 +86,20 @@ public function bar()
 
     dd($history);
 }
-
 ```
 
 Visit [https://github.com/cmfcmf/OpenWeatherMap-PHP-Api/blob/master/Examples/WeatherForecast.php](https://github.com/cmfcmf/OpenWeatherMap-PHP-Api/blob/master/Examples/WeatherForecast.php) for more info.
 
-##### Parameters:
+#### Parameters:
 
-Note:
-```
 There are three ways to specify the place to get weather information for:
-    - Use the city name: $query must be a string containing the city name.
-    - Use the city id: $query must be an integer containing the city id.
-    - Use the coordinates: $query must be an associative array containing the 'lat' and 'lon' values.
-```
+  - Use the city name: $query must be a string containing the city name.
+  - Use the city id: $query must be an integer containing the city id.
+  - Use the coordinates: $query must be an associative array containing the 'lat' and 'lon' values.
 
 ##### getCurrentWeather:
-```
+
+```php
     /**
      * Get the current weather of the requested location/city.
      *
@@ -130,12 +115,11 @@ There are three ways to specify the place to get weather information for:
      * @return OpenWeatherMap\CurrentWeather
      */
     public function getCurrentWeather($query, $lang = 'en', $units = 'metric', $cache = false, $time = 600)
-    ...
-
 ```
 
 ##### getWeatherForecast:
-```
+
+```php
     /**
      * Get the forecast of the requested location/city.
      *
@@ -152,12 +136,11 @@ There are three ways to specify the place to get weather information for:
      * @return OpenWeatherMap\WeatherForecast
      */
     public function getWeatherForecast($query, $lang = 'en', $units = 'metric', $days = 5, $cache = false, $time = 600)
-    ...
-
 ```
 
 ##### getDailyWeatherForecast:
-```
+
+```php
     /**
      * Get the daily forecast of the requested location/city.
      *
@@ -176,11 +159,11 @@ There are three ways to specify the place to get weather information for:
      * @return OpenWeatherMap\WeatherForecast
      */
     public function getDailyWeatherForecast($query, $lang = 'en', $units = 'metric', $days = 5, $cache = false, $time = 600)
-    ...
 ```
 
 ##### getWeatherHistory:
-```
+
+```php
     /**
      * Get the forecast of the requested location/city.
      *
@@ -199,46 +182,30 @@ There are three ways to specify the place to get weather information for:
      * @return OpenWeatherMap\WeatherForecast
      */
     public function getWeatherHistory($query, \DateTime $start, $endOrCount = 1, $type = 'hour', $lang = 'en', $units = 'metric', $cache = false, $time = 600)
-    ...
-
 ```
 
+## Routes
 
-### Routes
+Additionally this package includes 2 routes ready-to-use that shows weather data in JSON format.
 
-#### Additionally this package includes 2 routes ready-to-use that shows weather data in JSON format.
+### /current-weather
 
-`[GET]` `/current-weather`
+**Method:** GET
 
-Parameters:
-```
-city: 'London'
-coord: ['lat': -0.13, 'lon': 51.51]
-lang: 'en' (default: 'en')
-units: 'metric'||'imperial' (default: 'metric')
-```
-
-`[GET]` `/forecast`
-
-Parameters:
+**Parameters:**
 ```
 city: 'London'
 coord: ['lat': -0.13, 'lon': 51.51]
 lang: 'en' (default: 'en')
 units: 'metric'||'imperial' (default: 'metric')
-days: 5 (default: 5)
 ```
 
-Note: You must use `city` or `coord` but not both.
+**Consider the following:**
+  - You must use `city` or `coord` but not both.
+  - The timezone for the dates of the results is taken from the `app/config.php` file ('app.timezone').
 
-
-#### /current-weather
-
-Consider the following:
-
-- The timezone for the dates of the results is taken from the `app/config.php` file ('app.timezone').
-
-```
+**Example response**
+```json
 {
    "status":"ok",
    "data":{
@@ -320,20 +287,31 @@ Consider the following:
       }
    }
 }
-
 ```
 
 ### /forecast (5 days)
 
-Consider the following:
+**Method:** GET
 
-- The timezone for the dates of the results is taken from the `app/config.php` file ('app.timezone').
-- The indexes of the days array, are ISO-8601 numeric representation of the day of the week, 1 (for Monday) through 7 (for Sunday).
-- The OWM API returns 3 hour forecast data, it means for each day you requested you'll get weather data each 3 hours in this order:
-06:00 - 09:00, 09:00 - 12:00, 12:00 - 15:00, 15:00 - 18:00, 18:00 - 21:00, 21:00 - 00:00.
-So to maintain a well-ordered info I built a key depending on the hours range (ie: ['06-09'] : { ... }).
-
+**Parameters:**
 ```
+city: 'London'
+coord: ['lat': -0.13, 'lon': 51.51]
+lang: 'en' (default: 'en')
+units: 'metric'||'imperial' (default: 'metric')
+days: 5 (default: 5)
+```
+
+**Consider the following:**
+  - You must use `city` or `coord` but not both.
+  - The timezone for the dates of the results is taken from the `app/config.php` file ('app.timezone').
+  - The indexes of the days array, are ISO-8601 numeric representation of the day of the week, 1 (for Monday) through 7 (for Sunday).
+  - The OWM API returns 3 hour forecast data, it means for each day you requested you'll get weather data each 3 hours in this order:
+06:00 - 09:00, 09:00 - 12:00, 12:00 - 15:00, 15:00 - 18:00, 18:00 - 21:00, 21:00 - 00:00.
+To structure this, a key depending on the hours range is used (ie: ['06-09'] : { ... }).
+
+**Example response**
+```json
 {
    "status":"ok",
    "data":{
@@ -434,9 +412,7 @@ So to maintain a well-ordered info I built a key depending on the hours range (i
                   "description_slug":"clear-sky",
                   "icon":"01d"
                }
-            },
-
-            ...
+            }
          },
          "4":{
             "03-06":{
@@ -512,8 +488,7 @@ So to maintain a well-ordered info I built a key depending on the hours range (i
                   "description_slug":"clear-sky",
                   "icon":"02d"
                }
-            },
-            ...
+            }
          },
          "5":{
             "03-06":{
@@ -589,8 +564,7 @@ So to maintain a well-ordered info I built a key depending on the hours range (i
                   "description_slug":"overcast-clouds",
                   "icon":"04d"
                }
-            },
-            ...
+            }
          },
          "6":{
             "03-06":{
@@ -666,8 +640,7 @@ So to maintain a well-ordered info I built a key depending on the hours range (i
                   "description_slug":"scattered-clouds",
                   "icon":"03d"
                }
-            },
-            ...
+            }
          },
          "7":{
             "03-06":{
@@ -743,31 +716,13 @@ So to maintain a well-ordered info I built a key depending on the hours range (i
                   "description_slug":"clear-sky",
                   "icon":"01d"
                }
-            },
-            ...
+            }
          }
       }
    }
 }
 ```
 
-## Changelog
+## Thank you note
 
-v0.1.2
-- Support for getDailyWeatherForecast
-
-v0.1.1
-- Whitespace/formatting.
-- Added getWeatherHistory method
-- Additional README documentation
-
-Thanks to: 
-- [@gitllermopalafox](https://github.com/gitllermopalafox)
-- [@nateritter](https://github.com/nateritter)
-- [@jmaurer1994](https://github.com/jmaurer1994)
-
-### License: MIT
-
-
-### Contributing
-You can help me fixing my horrific English in the documentation & comments.
+Many thanks to [@gitllermopalafox](https://github.com/gitllermopalafox) for the original Laravel-OWM!
