@@ -5,6 +5,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Frozenshadow\LaravelOWM\LaravelOWM;
+use Illuminate\Support\Str;
 
 class LaravelOWMController extends Controller
 {
@@ -210,31 +211,31 @@ class LaravelOWMController extends Controller
                     'value' => $obj->wind->speed->getValue(),
                     'unit' => $obj->wind->speed->getUnit(),
                     'description' => $obj->wind->speed->getDescription(),
-                    'description_slug' => str_slug($obj->wind->speed->getDescription())
+                    'description_slug' => Str::slug($obj->wind->speed->getDescription())
                 ],
                 'direction' => [
                     'value' => $obj->wind->direction->getValue(),
                     'unit' => $obj->wind->direction->getUnit(),
                     'description' => $obj->wind->direction->getDescription(),
-                    'description_slug' => str_slug($obj->wind->direction->getDescription())
+                    'description_slug' => Str::slug($obj->wind->direction->getDescription())
                 ]
             ],
             'clouds' => [
                 'value' => $obj->clouds->getValue(),
                 'unit' => $obj->clouds->getUnit(),
                 'description' => $obj->clouds->getDescription(),
-                'description_slug' => str_slug($obj->clouds->getDescription())
+                'description_slug' => Str::slug($obj->clouds->getDescription())
             ],
             'precipitation' => [
                 'value' => $obj->precipitation->getValue(),
                 'unit' => $obj->precipitation->getUnit(),
                 'description' => $obj->precipitation->getDescription(),
-                'description_slug' => str_slug($obj->precipitation->getDescription())
+                'description_slug' => Str::slug($obj->precipitation->getDescription())
             ],
             'weather' => [
                 'id' => $obj->weather->id,
                 'description' => $obj->weather->description,
-                'description_slug' => str_slug($obj->weather->description),
+                'description_slug' => Str::slug($obj->weather->description),
                 'icon' => $obj->weather->icon
             ],
         ];
