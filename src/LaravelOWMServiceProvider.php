@@ -12,18 +12,6 @@ class LaravelOWMServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-		$config = $this->app['config']->get('laravel-owm');
-
-		// Loading routes file
-		if ($config !== null) {
-
-			if ($config['routes_enabled']) {
-				require __DIR__ . '/Http/routes.php';
-			}
-
-		} else {
-			require __DIR__ . '/Http/routes.php';
-		}
 
 		$this->publishes([
 			__DIR__ . '/config' => config_path()
@@ -45,4 +33,8 @@ class LaravelOWMServiceProvider extends ServiceProvider {
 		});
 	}
 
+        // Loading routes file
+        if (config('laravel-owm.routes_enabled')) {
+            $this->loadRoutesFrom(__DIR__ . '/Http/routes.php');
+        }
 }
