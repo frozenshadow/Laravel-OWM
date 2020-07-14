@@ -13,6 +13,12 @@ Require this package with composer.
 composer require frozenshadow/laravel-owm
 ```
 
+You will also need a PSR-17 compatible HTTP factory, PSR-18 compatible HTTP client and PSR-6 compatible Cache implementation. For the default setup you can use:
+
+```shell
+composer require http-interop/http-factory-guzzle php-http/guzzle6-adapter symfony/cache
+```
+
 Laravel uses Package Auto-Discovery, so doesn't require you to manually add the ServiceProvider.
 
 #### Laravel without auto-discovery:
@@ -33,6 +39,14 @@ Add your Open Weather Map API key.
 
 ```php
 'api_key' => '',    // visit: http://openweathermap.org/appid#get for more info.
+```
+
+Add fully qualified string names of your httpClient and httpRequest implementation and a cache class. If you installed the packages suggested above you can leave them as the defaults below:
+
+```php
+'httpClient' => 'Http\Adapter\Guzzle6\Client',
+'httpRequestFactory' => 'Http\Factory\Guzzle\RequestFactory',
+'cache' => app('cache.psr6'),
 ```
 
 ## Usage

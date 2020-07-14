@@ -15,6 +15,21 @@ class LaravelOWM
      */
     protected $api_key;
 
+    /**
+     * @var string
+     */
+    protected $httpClient;
+
+    /**
+     * @var string
+     */
+    protected $httpRequestFactory;
+
+    /**
+     * @var mixed
+     */
+    protected $cache;
+
     public function __construct()
     {
         $this->config = config('laravel-owm');
@@ -28,6 +43,9 @@ class LaravelOWM
         }
 
         $this->api_key = $this->config['api_key'];
+        $this->httpClient = new $this->config['httpClient']();
+        $this->httpRequestFactory = new $this->config['httpRequestFactory']();
+        $this->cache = $this->config['cache'];
     }
 
     /**
@@ -48,6 +66,7 @@ class LaravelOWM
      * @param bool $cache
      * @param int $time
      * @return OpenWeatherMap\CurrentWeather
+     * @throws OpenWeatherMap\Exception
      */
     public function getCurrentWeather($query, $lang = 'en', $units = 'metric', $cache = false, $time = 600)
     {
@@ -55,11 +74,11 @@ class LaravelOWM
         $units = $units ?: 'metric';
 
         if ($cache) {
-            $owm = new OpenWeatherMap($this->api_key, null, new Cache(), $time);
+            $owm = new OpenWeatherMap($this->api_key, $this->httpClient, $this->httpRequestFactory, $this->cache, $time);
             return $owm->getWeather($query, $units, $lang);
         }
 
-        $owm = new OpenWeatherMap($this->api_key);
+        $owm = new OpenWeatherMap($this->api_key, $this->httpClient, $this->httpRequestFactory);
         return $owm->getWeather($query, $units, $lang);
     }
 
@@ -82,6 +101,7 @@ class LaravelOWM
      * @param bool $cache
      * @param int $time
      * @return OpenWeatherMap\WeatherForecast
+     * @throws OpenWeatherMap\Exception
      */
     public function getWeatherForecast($query, $lang = 'en', $units = 'metric', $days = 5, $cache = false, $time = 600)
     {
@@ -90,11 +110,11 @@ class LaravelOWM
         $days = $days ?: 6;
 
         if ($cache) {
-            $owm = new OpenWeatherMap($this->api_key, null, new Cache(), $time);
+            $owm = new OpenWeatherMap($this->api_key, $this->httpClient, $this->httpRequestFactory, $this->cache, $time);
             return $owm->getWeatherForecast($query, $units, $lang, '', $days);
         }
 
-        $owm = new OpenWeatherMap($this->api_key);
+        $owm = new OpenWeatherMap($this->api_key, $this->httpClient, $this->httpRequestFactory);
         return $owm->getWeatherForecast($query, $units, $lang, '', $days);
     }
 
@@ -114,6 +134,7 @@ class LaravelOWM
      * @param bool $cache
      * @param int $time
      * @return OpenWeatherMap\WeatherForecast
+     * @throws OpenWeatherMap\Exception
      */
     public function getDailyWeatherForecast($query, $lang = 'en', $units = 'metric', $days = 5, $cache = false, $time = 600)
     {
@@ -122,11 +143,11 @@ class LaravelOWM
         $days = $days ?: 6;
 
         if ($cache) {
-            $owm = new OpenWeatherMap($this->api_key, null, new Cache(), $time);
+            $owm = new OpenWeatherMap($this->api_key, $this->httpClient, $this->httpRequestFactory, $this->cache, $time);
             return $owm->getDailyWeatherForecast($query, $units, $lang, '', $days);
         }
 
-        $owm = new OpenWeatherMap($this->api_key);
+        $owm = new OpenWeatherMap($this->api_key, $this->httpClient, $this->httpRequestFactory);
         return $owm->getDailyWeatherForecast($query, $units, $lang, '', $days);
     }
 
@@ -161,11 +182,11 @@ class LaravelOWM
         $type = $type ?: 'hour';
 
         if ($cache) {
-            $owm = new OpenWeatherMap($this->api_key, null, new Cache(), $time);
+            $owm = new OpenWeatherMap($this->api_key, $this->httpClient, $this->httpRequestFactory, $this->cache, $time);
             return $owm->getWeatherHistory($query, $start, $endOrCount, $type, $units, $lang, '');
         }
 
-        $owm = new OpenWeatherMap($this->api_key);
+        $owm = new OpenWeatherMap($this->api_key, $this->httpClient, $this->httpRequestFactory);
         return $owm->getWeatherHistory($query, $start, $endOrCount, $type, $units, $lang, '');
     }
 }
