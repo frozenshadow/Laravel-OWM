@@ -10,6 +10,19 @@ use Illuminate\Support\Str;
 class LaravelOWMController extends Controller
 {
     /**
+     * @var LaravelOWM
+     */
+    protected $lowm;
+
+    /**
+     * LaravelOWMController constructor.
+     */
+    public function __construct()
+    {
+        $this->lowm = new LaravelOWM();
+    }
+
+    /**
      * Response with the current weather of the requested location/city.
      *
      * @param Request $request
@@ -17,7 +30,6 @@ class LaravelOWMController extends Controller
      */
     public function currentweather(Request $request)
     {
-        $lowm = new LaravelOWM();
         $tz = new \DateTimeZone(config('app.timezone'));
 
         $city = $request->get('city');
@@ -32,8 +44,8 @@ class LaravelOWMController extends Controller
         $query = ($city) ?: $coordinates;
 
         try {
-            $current_weather = $lowm->getCurrentWeather($query, $lang, $units, true);
-        } catch(\Exception $e) {
+            $current_weather = $this->lowm->getCurrentWeather($query, $lang, $units, true);
+        } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage(), 'code' => $e->getCode()]);
         }
 
@@ -75,7 +87,6 @@ class LaravelOWMController extends Controller
      */
     public function forecast(Request $request)
     {
-        $lowm = new LaravelOWM();
         $tz = new \DateTimeZone(config('app.timezone'));
 
         $city = $request->get('city');
@@ -91,8 +102,8 @@ class LaravelOWMController extends Controller
         $query = ($city) ?: $coordinates;
 
         try {
-            $forecast = $lowm->getWeatherForecast($query, $lang, $units, $days, true);
-        } catch(\Exception $e){
+            $forecast = $this->lowm->getWeatherForecast($query, $lang, $units, $days, true);
+        } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage(), 'code' => $e->getCode()]);
         }
 
