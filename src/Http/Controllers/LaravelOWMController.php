@@ -1,14 +1,18 @@
 <?php
 namespace Frozenshadow\LaravelOWM\Http\Controllers;
 
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Frozenshadow\LaravelOWM\LaravelOWM;
-use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 
 class LaravelOWMController extends Controller
 {
+    /**
+     * @var \DateTimeZone
+     */
+    protected $timezone;
+
     /**
      * @var LaravelOWM
      */
@@ -19,6 +23,7 @@ class LaravelOWMController extends Controller
      */
     public function __construct()
     {
+        $this->timezone = new \DateTimeZone(config('app.timezone'));
         $this->lowm = new LaravelOWM();
     }
 
@@ -30,18 +35,16 @@ class LaravelOWMController extends Controller
      */
     public function currentweather(Request $request)
     {
-        $tz = new \DateTimeZone(config('app.timezone'));
-
         $city = $request->get('city');
         $coordinates = $request->get('coord');
         $lang = $request->get('lang', 'en');
         $units = $request->get('units', 'metric');
 
         if ($city === null && $coordinates == null) {
-            abort('400','City or coordinates cannot be undefined.');
+            abort('400', 'City or coordinates cannot be undefined.');
         }
 
-        $query = ($city) ?: $coordinates;
+        $query = $city ?: $coordinates;
 
         try {
             $current_weather = $this->lowm->getCurrentWeather($query, $lang, $units, true);
@@ -49,34 +52,7 @@ class LaravelOWMController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage(), 'code' => $e->getCode()]);
         }
 
-        $data = [
-            'city' => [
-                'id' => $current_weather->city->id,
-                'name' => $current_weather->city->name,
-                'lat' => $current_weather->city->lat,
-                'lon' => $current_weather->city->lon,
-                'country' => $current_weather->city->country,
-                'population' => $current_weather->city->population
-            ],
-            'sun' => [
-                'rise' => [
-                    'date' => $current_weather->sun->rise->setTimezone($tz)->format('Y-m-d H:i:s'),
-                    'timestamp' => $current_weather->sun->rise->setTimezone($tz)->getTimestamp()
-                ],
-                'set' => [
-                    'date' => $current_weather->sun->set->setTimezone($tz)->format('Y-m-d H:i:s'),
-                    'timestamp' => $current_weather->sun->set->setTimezone($tz)->getTimestamp()
-                ]
-            ],
-            'lastUpdate' => [
-                'date' => $current_weather->lastUpdate->setTimezone($tz)->format('Y-m-d H:i:s'),
-                'timestamp' => $current_weather->lastUpdate->setTimezone($tz)->getTimestamp()
-            ]
-        ];
-
-        $data = array_merge($data, $this->parseData($current_weather));
-
-        return response()->json(['status' => 'ok', 'data' => $data]);
+        return response()->json(['status' => 'ok', 'data' => $this->processData($current_weather)]);
     }
 
     /**
@@ -87,8 +63,6 @@ class LaravelOWMController extends Controller
      */
     public function forecast(Request $request)
     {
-        $tz = new \DateTimeZone(config('app.timezone'));
-
         $city = $request->get('city');
         $coordinates = $request->get('coord');
         $lang = $request->get('lang', 'en');
@@ -96,10 +70,10 @@ class LaravelOWMController extends Controller
         $days = $request->get('days', 5);
 
         if ($city === null && $coordinates == null) {
-            abort('400','City or coordinates cannot be undefined.');
+            abort('400', 'City or coordinates cannot be undefined.');
         }
 
-        $query = ($city) ?: $coordinates;
+        $query = $city ?: $coordinates;
 
         try {
             $forecast = $this->lowm->getWeatherForecast($query, $lang, $units, $days, true);
@@ -107,39 +81,59 @@ class LaravelOWMController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage(), 'code' => $e->getCode()]);
         }
 
-        $data = [
-            'city' => [
-                'id' => $forecast->city->id,
-                'name' => $forecast->city->name,
-                'lat' => $forecast->city->lat,
-                'lon' => $forecast->city->lon,
-                'country' => $forecast->city->country,
-                'population' => $forecast->city->population
-            ],
+        return response()->json(['status' => 'ok', 'data' => $this->processForecastData($forecast)]);
+    }
+
+    /**
+     * Helper function to process default data.
+     *
+     * @param object $obj
+     * @return array
+     */
+    private function processData($obj)
+    {
+        $processedData = [
             'sun' => [
                 'rise' => [
-                    'date' => $forecast->sun->rise->setTimezone($tz)->format('Y-m-d H:i:s'),
-                    'timestamp' => $forecast->sun->rise->setTimezone($tz)->getTimestamp()
+                    'date' => $obj->sun->rise->setTimezone($this->timezone)->format('Y-m-d H:i:s'),
+                    'timestamp' => $obj->sun->rise->setTimezone($this->timezone)->getTimestamp()
                 ],
                 'set' => [
-                    'date' => $forecast->sun->set->setTimezone($tz)->format('Y-m-d H:i:s'),
-                    'timestamp' => $forecast->sun->set->setTimezone($tz)->getTimestamp()
+                    'date' => $obj->sun->set->setTimezone($this->timezone)->format('Y-m-d H:i:s'),
+                    'timestamp' => $obj->sun->set->setTimezone($this->timezone)->getTimestamp()
                 ]
             ],
             'lastUpdate' => [
-                'date' => $forecast->lastUpdate->setTimezone($tz)->format('Y-m-d H:i:s'),
-                'timestamp' => $forecast->lastUpdate->setTimezone($tz)->getTimestamp()
-            ]
+                'date' => $obj->lastUpdate->setTimezone($this->timezone)->format('Y-m-d H:i:s'),
+                'timestamp' => $obj->lastUpdate->setTimezone($this->timezone)->getTimestamp()
+            ],
         ];
 
-        foreach ($forecast as $obj) {
+        return array_merge((array) $obj, $processedData);
+    }
 
-            $day = $obj->time->day->setTimezone($tz);
-            $from = $obj->time->from->setTimezone($tz);
-            $to = $obj->time->to->setTimezone($tz);
+    /**
+     * Helper function to process forecast data.
+     *
+     * @param \Cmfcmf\OpenWeatherMap\WeatherForecast $forecast
+     * @return array
+     */
+    private function processForecastData($forecast)
+    {
+        // Create a basic dataset by extracting the forecast.
+        // Because this is a private property in the WeatherForecast class,
+        // we'll convert the object to an array using reflection.
+        // There is probably a better way to do this though... I'm open to ideas.
+        $weatherForecastDataset = $this->objectToArray($forecast);
+        $basicDataset = Arr::except($weatherForecastDataset, ['forecasts', 'position']);
+        $data = $this->processData((object) $basicDataset);
+
+        foreach ($forecast as $obj) {
+            $day = $obj->time->day->setTimezone($this->timezone);
+            $from = $obj->time->from->setTimezone($this->timezone);
+            $to = $obj->time->to->setTimezone($this->timezone);
 
             $temp = [
-
                 'time' => [
                     'from' => [
                         'date' => $from->format('Y-m-d H:i:s'),
@@ -153,18 +147,11 @@ class LaravelOWMController extends Controller
                         'date' => $day->format('Y-m-d H:i:s'),
                         'timestamp' => $day->getTimestamp()
                     ],
-                ],
-
-                'lastUpdate' => [
-                    'date' => $obj->lastUpdate->setTimezone($tz)->format('Y-m-d H:i:s'),
-                    'timestamp' => $obj->lastUpdate->setTimezone($tz)->getTimestamp()
                 ]
             ];
 
             if (isset($last_day)) {
-
-                if($day->format('Y-m-d H:i:s') == $last_day){
-
+                if ($day->format('Y-m-d H:i:s') == $last_day) {
                     // ISO-8601 numeric representation of the day of the week
                     // 1 (for Monday) through 7 (for Sunday)
                     $day_key = $day->format('N');
@@ -176,82 +163,36 @@ class LaravelOWMController extends Controller
                     // (ie: ['06-09'] => [ ... ]).
                     $time_key = $from->format('H').'-'.$to->format('H');
 
-                    $data['days'][$day_key][$time_key] = array_merge($temp, $this->parseData($obj));
+                    $data['days'][$day_key][$time_key] = array_merge($temp, $this->processData($obj));
                 }
             }
 
             $last_day = $day->format('Y-m-d H:i:s');
         }
 
-        return response()->json(['status' => 'ok', 'data' => $data]);
-    }
-
-    /**
-     * Helper function to parse data.
-     *
-     * @param $obj
-     * @return array
-     */
-    private function parseData($obj)
-    {
-        $data = [
-            'temperature' => [
-                'now' => [
-                    'value' => $obj->temperature->now->getValue(),
-                    'unit' => $obj->temperature->now->getUnit()
-                ],
-                'min' => [
-                    'value' => $obj->temperature->min->getValue(),
-                    'unit' => $obj->temperature->min->getUnit()
-                ],
-                'max' => [
-                    'value' => $obj->temperature->max->getValue(),
-                    'unit' => $obj->temperature->max->getUnit()
-                ]
-            ],
-            'humidity' => [
-                'value' => $obj->humidity->getValue(),
-                'unit' => $obj->humidity->getUnit()
-            ],
-            'pressure' => [
-                'value' => $obj->pressure->getValue(),
-                'unit' => $obj->pressure->getUnit()
-            ],
-            'wind' => [
-                'speed' => [
-                    'value' => $obj->wind->speed->getValue(),
-                    'unit' => $obj->wind->speed->getUnit(),
-                    'description' => $obj->wind->speed->getDescription(),
-                    'description_slug' => Str::slug($obj->wind->speed->getDescription())
-                ],
-                'direction' => [
-                    'value' => $obj->wind->direction->getValue(),
-                    'unit' => $obj->wind->direction->getUnit(),
-                    'description' => $obj->wind->direction->getDescription(),
-                    'description_slug' => Str::slug($obj->wind->direction->getDescription())
-                ]
-            ],
-            'clouds' => [
-                'value' => $obj->clouds->getValue(),
-                'unit' => $obj->clouds->getUnit(),
-                'description' => $obj->clouds->getDescription(),
-                'description_slug' => Str::slug($obj->clouds->getDescription())
-            ],
-            'precipitation' => [
-                'value' => $obj->precipitation->getValue(),
-                'unit' => $obj->precipitation->getUnit(),
-                'description' => $obj->precipitation->getDescription(),
-                'description_slug' => Str::slug($obj->precipitation->getDescription())
-            ],
-            'weather' => [
-                'id' => $obj->weather->id,
-                'description' => $obj->weather->description,
-                'description_slug' => Str::slug($obj->weather->description),
-                'icon' => $obj->weather->icon
-            ],
-        ];
-
         return $data;
     }
 
+    /**
+     * Helper method for converting an object to an array using reflection
+     *
+     * @param object $object
+     * @return array|bool
+     */
+    private function objectToArray($object)
+    {
+        if (!is_object($object)) {
+            return false;
+        }
+
+        $reflection = new \ReflectionObject($object);
+        $properties = array();
+
+        foreach ($reflection->getProperties() as $property) {
+            $property->setAccessible(true);
+            $properties[$property->getName()] = $property->getValue($object);
+        }
+
+        return array_merge((array) $reflection->getConstants(), $properties);
+    }
 }
