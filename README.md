@@ -46,7 +46,7 @@ Add fully qualified string names of your httpClient and httpRequest implementati
 ```php
 'httpClient' => 'Http\Adapter\Guzzle6\Client',
 'httpRequestFactory' => 'Http\Factory\Guzzle\RequestFactory',
-'cache' => app('cache.psr6'),
+'cache' => config('cache.psr6'),
 ```
 
 ## Usage
